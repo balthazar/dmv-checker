@@ -11,7 +11,7 @@
       "ref"        : "origin/master",
       "repo"       : "git@github.com:balthazar/dmv-checker.git",
       "path"       : "/var/www/dmv-checker",
-      "post-deploy": "yarn && yarn build && pm2 startOrRestart ecosystem.json5 --env production --log-date-format 'DD-MM HH:mm:ss.SSS'",
+      "post-deploy": "yarn && pm2 startOrRestart ecosystem.json5 --env production --log-date-format 'DD-MM HH:mm:ss.SSS'",
     }
   }
 }

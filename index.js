@@ -14,9 +14,9 @@ const main = async () => {
 
   await page.goto('https://www.dmv.ca.gov/portal/dmv/detail/fo/offices/fieldoffice?number=645')
 
-  const waits = await page.evaluate(() => {
-    return [...document.getElementById('WaitTimesData').children].map(o => o.children[1].innerText)
-  })
+  const waits = await page.evaluate(() =>
+    [...document.getElementById('WaitTimesData').children].map(o => o.children[1].innerText),
+  )
 
   const time = Date.now()
 
