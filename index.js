@@ -8,7 +8,7 @@ const db = low(adapter)
 
 db.defaults({ waits: [] }).write()
 
-const main = async () => {
+const main = async isRetrying => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
 
@@ -17,6 +17,14 @@ const main = async () => {
   const waits = await page.evaluate(() =>
     [...document.getElementById('WaitTimesData').children].map(o => o.children[1].innerText),
   )
+
+  if (!waits[0] || !waits[1]) {
+    if (!isRetrying) {
+      main(true)
+    }
+
+    return
+  }
 
   const time = Date.now()
 
