@@ -4,13 +4,20 @@
   "description": "",
   "scripts": {
     "start": "node index.js",
+    "reader": "parcel reader/index.html",
+    "data": "scp me@balthazargronon.com:/var/www/dmv-checker/current/db.json .",
     "setup": "pm2 deploy ecosystem.json5 production setup",
     "deploy": "pm2 deploy ecosystem.json5 production"
   },
   "dependencies": {
+    "@nivo/line": "^0.52.1",
+    "date-fns": "^1.30.1",
     "jsdom": "^13.2.0",
     "lowdb": "^1.0.0",
     "node-schedule": "^1.3.2",
-    "puppeteer": "^1.12.2"
+    "parcel": "^1.11.0",
+    "puppeteer": "^1.12.2",
+    "react": "^16.8.2",
+    "react-dom": "^16.8.2"
   }
 }
