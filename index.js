@@ -8,6 +8,8 @@ const db = low(adapter)
 
 db.defaults({ waits: [] }).write()
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
 const main = async isRetrying => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
@@ -20,6 +22,7 @@ const main = async isRetrying => {
 
   if (!waits[0] || !waits[1]) {
     if (!isRetrying) {
+      await sleep(500)
       main(true)
     }
 
