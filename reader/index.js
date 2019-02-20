@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom'
 import { ResponsiveLine } from '@nivo/line'
 import { format } from 'date-fns'
 
-import data from '../db.json'
+import rawData from '../db.json'
 
-console.log(data)
+const data = rawData.waits.filter(({ withApt, withoutApt }) => withApt || withoutApt)
 
 const toMinutes = text => {
   const [hours, minutes] = text.split(':')
@@ -19,12 +19,12 @@ const App = () => (
         {
           id: 'With appointment',
           color: 'red',
-          data: data.waits.map(({ time, withApt }) => ({ x: time, y: toMinutes(withApt) })),
+          data: data.map(({ time, withApt }) => ({ x: time, y: toMinutes(withApt) })),
         },
         {
           id: 'Without appointment',
           color: 'blue',
-          data: data.waits.map(({ time, withoutApt }) => ({ x: time, y: toMinutes(withoutApt) })),
+          data: data.map(({ time, withoutApt }) => ({ x: time, y: toMinutes(withoutApt) })),
         },
       ]}
       margin={{
