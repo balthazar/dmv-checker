@@ -9,6 +9,7 @@ const db = low(adapter)
 db.defaults({ waits: [] }).write()
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+const isEmpty = v => v === '0:00'
 
 const main = async isRetrying => {
   const browser = await puppeteer.launch()
@@ -27,6 +28,17 @@ const main = async isRetrying => {
     }
 
     return
+  }
+
+  if (isEmpty(waits[0]) && isEmpty(waits[1])) {
+    const last = db
+      .get('waits')
+      .takeRight(1)
+      .value()[0]
+
+    if (isEmpty(last.withApt) && isEmpty(last.withoutApt)) {
+      return
+    }
   }
 
   const time = Date.now()
