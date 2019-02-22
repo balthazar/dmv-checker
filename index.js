@@ -48,6 +48,7 @@ const main = async isRetrying => {
     .push({ time, withApt: waits[0], withoutApt: waits[1] })
     .write()
 
+  await page.close()
   await browser.close()
 }
 
