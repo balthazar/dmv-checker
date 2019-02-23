@@ -8,6 +8,11 @@ const db = low(adapter)
 
 db.defaults({ waits: [] }).write()
 
+const clear = async (browser, page) => {
+  await page.close()
+  await browser.close()
+}
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const isEmpty = v => v === '0:00'
 
@@ -27,7 +32,7 @@ const main = async isRetrying => {
       main(true)
     }
 
-    return
+    return clear(browser, page)
   }
 
   if (isEmpty(waits[0]) && isEmpty(waits[1])) {
@@ -37,7 +42,7 @@ const main = async isRetrying => {
       .value()[0]
 
     if (isEmpty(last.withApt) && isEmpty(last.withoutApt)) {
-      return
+      return clear(browser, page)
     }
   }
 
@@ -48,8 +53,7 @@ const main = async isRetrying => {
     .push({ time, withApt: waits[0], withoutApt: waits[1] })
     .write()
 
-  await page.close()
-  await browser.close()
+  return clear(browser, page)
 }
 
 schedule.scheduleJob('*/5 * * * *', main)
