@@ -63,6 +63,7 @@ const App = () => (
         )
       }}
       axisBottom={null}
+      enableGridX={false}
       axisLeft={{
         orient: 'left',
         tickSize: 5,
@@ -76,7 +77,6 @@ const App = () => (
       dotColor="inherit:darker(0.3)"
       dotBorderWidth={2}
       dotBorderColor="#ffffff"
-      enableDotLabel={true}
       dotLabel="y"
       dotLabelYOffset={-12}
       animate={true}
@@ -97,15 +97,6 @@ const App = () => (
           symbolSize: 12,
           symbolShape: 'circle',
           symbolBorderColor: 'rgba(0, 0, 0, .5)',
-          effects: [
-            {
-              on: 'hover',
-              style: {
-                itemBackground: 'rgba(0, 0, 0, .03)',
-                itemOpacity: 1,
-              },
-            },
-          ],
         },
       ]}
     />
