@@ -11,11 +11,16 @@ db.defaults({ waits: [] }).write()
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const isEmpty = v => v === '0:00'
 
-const main = async isRetrying => {
+const namesById = {
+  599: 'Daly City',
+  503: 'San Francisco',
+}
+
+const main = async (id, isRetrying) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
 
-  await page.goto('https://www.dmv.ca.gov/portal/dmv/detail/fo/offices/fieldoffice?number=645')
+  await page.goto(`https://www.dmv.ca.gov/portal/dmv/detail/fo/offices/fieldoffice?number=${id}`)
 
   const waits = await page.evaluate(() =>
     [...document.getElementById('WaitTimesData').children].map(o => o.children[1].innerText),
@@ -27,7 +32,7 @@ const main = async isRetrying => {
   if (!waits[0] || !waits[1]) {
     if (!isRetrying) {
       await sleep(500)
-      main(true)
+      main(id, true)
     }
 
     return
@@ -48,8 +53,11 @@ const main = async isRetrying => {
 
   db
     .get('waits')
-    .push({ time, withApt: waits[0], withoutApt: waits[1] })
+    .push({ time, id, withApt: waits[0], withoutApt: waits[1] })
     .write()
 }
 
-schedule.scheduleJob('*/5 * * * *', main)
+schedule.scheduleJob('*/5 * * * *', () => {
+  main(599)
+  main(503)
+})
