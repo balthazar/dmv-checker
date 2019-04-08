@@ -1,9 +1,19 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { ResponsiveLine } from '@nivo/line'
 import { format } from 'date-fns'
+import ReactEchartsCore from 'echarts-for-react/lib/core'
+import echarts from 'echarts/lib/echarts'
+
+import 'echarts/lib/chart/line'
+import 'echarts/lib/component/tooltip'
 
 import rawData from '../db.json'
+
+const officesMap = {
+  503: 'San Francisco',
+  599: 'Daily City',
+  645: 'San Jose DLPC',
+}
 
 const data = rawData.waits.filter(({ withApt, withoutApt }) => withApt || withoutApt)
 
@@ -12,96 +22,79 @@ const toMinutes = text => {
   return Number(hours) * 60 + Number(minutes)
 }
 
-const App = () => (
-  <div className="App">
-    <ResponsiveLine
-      data={[
-        {
-          id: 'With appointment',
-          color: 'red',
-          data: data.map(({ time, withApt }) => ({ x: time, y: toMinutes(withApt) })),
-        },
-        {
-          id: 'Without appointment',
-          color: 'blue',
-          data: data.map(({ time, withoutApt }) => ({ x: time, y: toMinutes(withoutApt) })),
-        },
-      ]}
-      margin={{
-        top: 50,
-        right: 150,
-        bottom: 50,
-        left: 60,
-      }}
-      tooltip={o => {
+const toHuman = num => {
+  const hours = num / 60
+  const rhours = Math.floor(hours)
+  const minutes = (hours - rhours) * 60
+  const rminutes = Math.round(minutes)
+  return `${rhours ? `${rhours}h` : ''}${rminutes ? `${rminutes}m` : ''}`
+}
+
+const App = () => {
+  return (
+    <div className="App" style={{ fontFamily: 'monospace' }}>
+      {Object.keys(officesMap).map(id => {
+        const officeData = data.filter(d => Number(d.id) === Number(id))
+
         return (
-          <div style={{ fontFamily: 'monospace' }}>
-            {format(o.id, 'HH:mm ddd')}
-            <div>
-              {o.data.map(e => (
-                <div key={e.serie.id} style={{ display: 'flex', alignItems: 'center' }}>
-                  <div
-                    style={{
-                      width: 5,
-                      height: 5,
-                      borderRadius: 5,
-                      backgroundColor: e.serie.color,
-                    }}
-                  />
-                  <span style={{ marginRight: 5, marginLeft: 5 }}>
-                    {e.serie.id}
-                    {': '}
-                  </span>
-                  <span>
-                    {e.data.y}
-                    {'m'}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div key={id}>
+            <h4>{officesMap[id]}</h4>
+
+            <ReactEchartsCore
+              echarts={echarts}
+              option={{
+                tooltip: {
+                  trigger: 'axis',
+                  formatter: params => {
+                    return `
+                ${format(Number(params[0].axisValue), 'HH:mm dddd DD/MM/YY')}
+                <br />
+                ${params
+                  .map(
+                    (p, i) => `
+                  ${p.marker} ${i === 0 ? 'With appointment' : 'Without appointment'} ${toHuman(
+                      p.value,
+                    )}
+                `,
+                  )
+                  .join('<br />')}
+              `
+                  },
+                },
+                xAxis: {
+                  type: 'category',
+                  data: officeData.map(d => d.time),
+                  axisLabel: {
+                    formatter: v => format(Number(v), 'DD ddd'),
+                  },
+                },
+                yAxis: {
+                  type: 'value',
+                  axisLabel: {
+                    formatter: v => toHuman(v),
+                  },
+                },
+                series: [
+                  {
+                    data: officeData.map(d => toMinutes(d.withApt)),
+                    type: 'line',
+                  },
+
+                  {
+                    data: officeData.map(d => toMinutes(d.withoutApt)),
+                    type: 'line',
+                  },
+                ],
+              }}
+              notMerge
+              lazyUpdate
+            />
           </div>
         )
-      }}
-      axisBottom={null}
-      enableGridX={false}
-      axisLeft={{
-        orient: 'left',
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: 'wait time (minutes)',
-        legendOffset: -40,
-        legendPosition: 'middle',
-      }}
-      dotSize={10}
-      dotColor="inherit:darker(0.3)"
-      dotBorderWidth={2}
-      dotBorderColor="#ffffff"
-      dotLabel="y"
-      dotLabelYOffset={-12}
-      animate={true}
-      motionStiffness={90}
-      motionDamping={15}
-      legends={[
-        {
-          anchor: 'bottom-right',
-          direction: 'column',
-          justify: false,
-          translateX: 100,
-          translateY: 0,
-          itemsSpacing: 0,
-          itemDirection: 'left-to-right',
-          itemWidth: 80,
-          itemHeight: 20,
-          itemOpacity: 0.75,
-          symbolSize: 12,
-          symbolShape: 'circle',
-          symbolBorderColor: 'rgba(0, 0, 0, .5)',
-        },
-      ]}
-    />
-  </div>
-)
+      })}
+    </div>
+  )
+}
 
 ReactDOM.render(<App />, document.getElementById('root'))
 
