@@ -11,7 +11,7 @@ import rawData from '../db.json'
 
 const officesMap = {
   503: 'San Francisco',
-  599: 'Daily City',
+  599: 'Daly City',
   645: 'San Jose DLPC',
 }
 
